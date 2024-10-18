@@ -87,10 +87,12 @@
 			"type": "bool"
 		},
 		"virtualNetworkName": {
-			"type": "string"
+			"type": "string",
+			"defaultValue": ""
 		},
 		"subnetName": {
-			"type": "string"
+			"type": "string",
+			"defaultValue": ""
 		},
 		"networkInterfaceName": {
 			"type": "string",
@@ -136,23 +138,23 @@
 		"nicDeleteOption": {
 			"type": "string"
 		},
-		"hibernationEnabled": {
+		"isHibernationEnabled": {
 			"type": "bool"
 		},
 		"adminUsername": {
 			"type": "string"
 		},
 		"adminPublicKey": {
-            "type": "secureString",
+			"type": "secureString",
 			"defaultValue": null
-        },
+		},
 		"securityType": {
 			"type": "string"
 		},
-		"secureBoot": {
+		"isSecureBootEnabled": {
 			"type": "bool"
 		},
-		"vTPM": {
+		"isVTpmEnabled": {
 			"type": "bool"
 		},
 		"virtualMachineZone": {
@@ -219,9 +221,7 @@
 			"sku": {
 				"name": "[parameters('publicIpAddressSku')]"
 			},
-			"zones": [
-				"[parameters('virtualMachineZone')]"
-			],
+			"zones": ["[parameters('virtualMachineZone')]"],
 			"tags": "[parameters('resourceTags')]"
 		},
 		{
@@ -259,12 +259,12 @@
 				"securityProfile": {
 					"securityType": "[parameters('securityType')]",
 					"uefiSettings": {
-						"secureBootEnabled": "[parameters('secureBoot')]",
-						"vTpmEnabled": "[parameters('vTPM')]"
+						"secureBootEnabled": "[parameters('isSecureBootEnabled')]",
+						"vTpmEnabled": "[parameters('isVTpmEnabled')]"
 					}
 				},
 				"additionalCapabilities": {
-					"hibernationEnabled": "[parameters('hibernationEnabled')]"
+					"hibernationEnabled": "[parameters('isHibernationEnabled')]"
 				},
 				"osProfile": {
 					"computerName": "[parameters('virtualMachineName')]",
@@ -272,13 +272,13 @@
 					"linuxConfiguration": {
 						"disablePasswordAuthentication": true,
 						"ssh": {
-                            "publicKeys": [
-                                {
-                                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
-                                    "keyData": "[parameters('adminPublicKey')]"
-                                }
-                            ]
-                        }
+							"publicKeys": [
+								{
+									"path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+									"keyData": "[parameters('adminPublicKey')]"
+								}
+							]
+						}
 					}
 				},
 				"diagnosticsProfile": {
@@ -288,9 +288,7 @@
 				}
 			},
 			"tags": "[parameters('resourceTags')]",
-			"zones": [
-				"[parameters('virtualMachineZone')]"
-			]
+			"zones": ["[parameters('virtualMachineZone')]"]
 		}
 	],
 	"outputs": {
