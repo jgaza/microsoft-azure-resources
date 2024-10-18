@@ -87,21 +87,22 @@ param location string = resourceGroup().location
   'Premium_ZRS'
   'UltraSSD_LRS'
 ])
-@metadata({
-  description: 'The OS disk tier.'
-})
-param osDiskTier string = 'StandardSSD_LRS'
-param vmName string
-param vNetName string = ''
+@description('The OS disk tier.')
+param osDiskType string = 'StandardSSD_LRS'
+param virtualMachineName string
+param virtualNetworkName string = ''
 param subnetName string = ''
-param vmSize string
+param virtualMachineSize string
 param adminUsername string = 'azureuser'
 @secure()
 param adminPublicKey string = ''
-param vTpmEnabled bool = true
-param secureBootEnabled bool = true
-param hibernationEnabled bool = true
+param isVTpmEnabled bool = true
+param isSecureBootEnabled bool = true
+param isHibernationEnabled bool = true
 param securityType string = 'TrustedLaunch'
+param pipDeleteOption string = 'Delete'
+param nicDeleteOption string = 'Delete'
+param osDiskDeleteOption string = 'Delete'
 param linuxImageReference object = {
   publisher: 'canonical'
   offer: 'ubuntu-24_04-lts'
@@ -111,7 +112,7 @@ param linuxImageReference object = {
 param tags object
 
 resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2024-01-01' = {
-  name: '${vmName}-ip'
+  name: '${virtualMachineName}-ip'
   location: location
   properties: {
     publicIPAllocationMethod: 'Static'
@@ -120,21 +121,26 @@ resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2024-01-01' = {
 }
 
 resource networkInterface 'Microsoft.Network/networkInterfaces@2024-01-01' = {
-  name: '${vmName}-nic'
+  name: '${virtualMachineName}-nic'
   location: location
   properties: {
     ipConfigurations: [
       {
-        name: '${vNetName}_${subnetName}_config'
+        name: '${virtualNetworkName}_${subnetName}_config'
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks/subnets', vNetName, subnetName)
+            id: resourceId(
+              resourceGroup().name,
+              'Microsoft.Network/virtualNetworks/subnets',
+              virtualNetworkName,
+              subnetName
+            )
           }
           publicIPAddress: {
             id: publicIPAddress.id
             properties: {
-              deleteOption: 'Delete'
+              deleteOption: pipDeleteOption
             }
           }
         }
@@ -145,14 +151,14 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2024-01-01' = {
 }
 
 resource linuxVM 'Microsoft.Compute/virtualMachines@2024-07-01' = {
-  name: vmName
+  name: virtualMachineName
   location: location
   properties: {
     hardwareProfile: {
-      vmSize: vmSize
+      vmSize: virtualMachineSize
     }
     osProfile: {
-      computerName: vmName
+      computerName: virtualMachineName
       adminUsername: adminUsername
       linuxConfiguration: {
         disablePasswordAuthentication: true
@@ -169,12 +175,12 @@ resource linuxVM 'Microsoft.Compute/virtualMachines@2024-07-01' = {
     storageProfile: {
       imageReference: linuxImageReference
       osDisk: {
-        name: '${vmName}-os-disk'
+        name: '${virtualMachineName}-os-disk'
         createOption: 'FromImage'
         managedDisk: {
-          storageAccountType: osDiskTier
+          storageAccountType: osDiskType
         }
-        deleteOption: 'Delete'
+        deleteOption: osDiskDeleteOption
       }
     }
     networkProfile: {
@@ -182,7 +188,7 @@ resource linuxVM 'Microsoft.Compute/virtualMachines@2024-07-01' = {
         {
           id: networkInterface.id
           properties: {
-            deleteOption: 'Delete'
+            deleteOption: nicDeleteOption
           }
         }
       ]
@@ -190,12 +196,12 @@ resource linuxVM 'Microsoft.Compute/virtualMachines@2024-07-01' = {
     securityProfile: {
       securityType: securityType
       uefiSettings: {
-        secureBootEnabled: secureBootEnabled
-        vTpmEnabled: vTpmEnabled
+        secureBootEnabled: isSecureBootEnabled
+        vTpmEnabled: isVTpmEnabled
       }
     }
     additionalCapabilities: {
-      hibernationEnabled: hibernationEnabled
+      hibernationEnabled: isHibernationEnabled
     }
     diagnosticsProfile: {
       bootDiagnostics: {

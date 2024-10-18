@@ -1,11 +1,11 @@
 using '../linux-vm.bicep'
 
-param osDiskTier = 'StandardSSD_LRS'
-param vmName = 'sandbox-ubuntu-server-vm'
-param vmSize = 'Standard_D2ps_v6'
-param vTpmEnabled = true
-param secureBootEnabled = true
-param hibernationEnabled = false
+param osDiskType = 'StandardSSD_LRS'
+param virtualMachineName = 'sandbox-ubuntu-server-vm'
+param virtualMachineSize = 'Standard_D2ps_v6'
+param isVTpmEnabled = true
+param isSecureBootEnabled = true
+param isHibernationEnabled = false
 param linuxImageReference = {
   publisher: 'canonical'
   offer: 'ubuntu-24_04-lts'

@@ -29,7 +29,7 @@
         "nicDeleteOption": {
             "value": "Delete"
         },
-        "hibernationEnabled": {
+        "isHibernationEnabled": {
             "value": false
         },
         "adminUsername": {
@@ -38,10 +38,10 @@
         "securityType": {
             "value": "TrustedLaunch"
         },
-        "secureBoot": {
+        "isSecureBootEnabled": {
             "value": true
         },
-        "vTPM": {
+        "isVTpmEnabled": {
             "value": true
         },
         "virtualMachineZone": {
@@ -57,7 +57,7 @@
 		},
 		"resourceTags": {
 			"value": {
-				"Environment": "Sandbox"
+				"environment": "sandbox"
 			}
 		}
 	}
